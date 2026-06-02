@@ -1,0 +1,66 @@
+To use this workspace, first locally download this repository and the required dependencies which can be installed through the following commands...
+
+Install PX4-Autopilot & Gazebo (This script installs all core Linux drone dependencies... Im using WSL):
+
+cd ~
+git clone https://github.com/PX4/PX4-Autopilot.git --recursive
+bash ./PX4-Autopilot/Tools/setup/ubuntu.sh
+
+Install the Micro-XRCE-DDS Agent (The Bridge Server):
+
+cd ~
+git clone https://github.com/eProsima/Micro-XRCE-DDS-Agent.git
+cd Micro-XRCE-DDS-Agent
+mkdir build && cd build
+cmake ..
+make
+sudo make install
+sudo ldconfig /usr/local/lib/
+
+Setup the ROS 2 Workspace and clone px4_msgs:
+
+mkdir -p ~/team_drone_ws/src
+cd ~/team_drone_ws/src
+git clone https://github.com/PX4/px4_msgs.git
+
+Install the ROS 2/Python Mathematical Dependencies:
+
+sudo apt update
+sudo apt install ros-jazzy-tf-transformations python3-transforms3d -y
+pip3 install "numpy<2" --break-system-packages
+Three terminals would be required, one to launch PX4, one to establish the uXRCE-DDS pipeline and one to run the launch scripts.
+
+First of all, run the following commands in any terminal to compile the workspace:
+
+cd ~/team_drone_ws
+colcon build
+source install/setup.bash
+
+Then, in Terminal 1 (The PX4 terminal) run the following commands:
+
+cd ~/PX4-Autopilot
+export LIBGL_ALWAYS_SOFTWARE=1
+make px4_sitl gz_x500_depth
+
+A Gazebo window should open and spawn a quadcopter drone on a flat ground.
+
+Then, in Terminal 2 (The DDS Pipeline terminal) run the following commands:
+
+cd ~/team_drone_ws
+ros2 launch flight_bridge bridge_launch.py
+
+This would establish the uXRCE-DDS pipeline between the flight software and the ROS2 nodes and also open a window which displays live camera feed.
+
+Finally, in Terminal 3 (The Launch terminal) run the following commands:
+
+cd ~/team_drone_ws
+ros2 launch flight_bridge system_integration.launch.py
+
+This would launch the entire flight software stack simultaneously. Specifically, it starts the 250Hz hardware telemetry tracker, the ENU and NED coordinate matrix translators for the VIO/SLAM pipeline, the EuRoC camera parameter spoofer, and the VIO watchdog node. If the watchdog detects a loss of camera odometry for more than 0.5 seconds, it will automatically inject a hardware command to force the drone into an emergency auto-land. You can test this in Gazebo by observing the output of Terminal 3 when you play/pause the simulation.
+
+If any issues arise while running any one of the above codes, execute the following commands before starting the above commands:
+
+colcon build --packages-select flight_bridge
+source install/setup.bash
+
+Incase the issues persist, you can contact me through my gmail given in my profile's description.
