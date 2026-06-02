@@ -1,5 +1,3 @@
-rtabmap_bridge/rtabmap_bridge/slam_bridge_enu_node.py
-
 #!/usr/bin/env python3
 
 import rclpy

@@ -2,23 +2,21 @@ from launch import LaunchDescription
 from launch.actions import ExecuteProcess, SetEnvironmentVariable
 
 def generate_launch_description():
-    # We save the giant Gazebo name as a variable so it's easier to read
+
     gazebo_topic = '/world/default/model/x500_depth_0/link/camera_link/sensor/IMX214/image'
 
     return LaunchDescription([
-        # TRANSLATION 1: This is exactly like typing 'export GZ_VERSION=harmonic'
+
         SetEnvironmentVariable(
             name='GZ_VERSION', 
             value='harmonic'
         ),
 
-        # TRANSLATION 2: This is exactly like typing 'MicroXRCEAgent udp4 -p 8888'
         ExecuteProcess(
             cmd=['MicroXRCEAgent', 'udp4', '-p', '8888'],
             output='screen'
         ),
 
-        # TRANSLATION 3: This is exactly like typing 'ros2 run ros_gz_image image_bridge ...'
         ExecuteProcess(
             cmd=['ros2', 'run', 'ros_gz_image', 'image_bridge', gazebo_topic],
             output='screen'

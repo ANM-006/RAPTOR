@@ -65,16 +65,16 @@ class FailsafeWatchdog(Node):
 
         self.px4_cmd_pub.publish(msg)
 
-    def main(args=None):
-        rclpy.init(args=args)
-        node = FailsafeWatchdog()
-        try:
-            rclpy.spin(node)
-        except KeyboardInterrupt:
-            pass
-        finally:
-            node.destroy_node()
-            rclpy.shutdown()
+def main(args=None):
+    rclpy.init(args=args)
+    node = FailsafeWatchdog()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
-    if __name__ == '__main__':
-        main()
+if __name__ == '__main__':
+    main()
